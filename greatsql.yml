@@ -38,10 +38,17 @@
        - name: copy my.cnf
          copy: src={{base_dir}}/support-files/my.cnf dest={{my_cnf}} owner={{mysql_user}} group={{mysql_user}} mode=0644
     
-       - name: replace my.cnf settings
-         shell: >
-                sed -i "s/\(.*group_replication_local_address.*\)=.*/\1= {{ inventory_hostname }}:33061/ig" {{ my_cnf }}; 
-                sed -i "s/\(.*group_replication_group_seeds.*\)=.*/\1= {{ mgr_seeds }}/ig" {{ my_cnf }}
+       - name: replace my.cnf group_replication_local_address settings
+         replace:
+           path: "{{ my_cnf }}"
+           regexp: '(.*group_replication_local_address.*)=.*'
+           replace: '\1= {{ inventory_hostname }}:33061'
+
+       - name: replace my.cnf group_replication_group_seeds settings
+         replace:
+           path: "{{ my_cnf }}"
+           regexp: '(.*group_replication_group_seeds.*)=.*'
+           replace: '\1= {{ mgr_seeds }}'
 
        - name: copy sysconfig/mysql to /etc/sysconfig/mysql
          copy: src={{base_dir}}/support-files/sysconfig/mysql dest=/etc/sysconfig owner=root group=root mode=0644
