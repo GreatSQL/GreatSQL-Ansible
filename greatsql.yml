@@ -75,11 +75,11 @@
                 {{ base_dir }}/bin/mysql -uroot -f -S {{ data_dir }}/mysql.sock
                 -ANse " CREATE USER {{ mgr_user }} IDENTIFIED WITH mysql_native_password BY '{{ mgr_user_pwd }}';
                 GRANT REPLICATION SLAVE, BACKUP_ADMIN ON *.* TO {{ mgr_user }};
+                RESET MASTER;
                 CHANGE MASTER TO MASTER_USER='{{ mgr_user }}', MASTER_PASSWORD='{{ mgr_user_pwd }}' FOR CHANNEL 'group_replication_recovery';
                 SET GLOBAL group_replication_local_address = '{{ inventory_hostname }}:33061';
                 SET GLOBAL group_replication_group_seeds = '{{ mgr_seeds }}';
                 SET GLOBAL group_replication_bootstrap_group=ON;
-                RESET MASTER;
                 START GROUP_REPLICATION;
                 SET GLOBAL group_replication_bootstrap_group=OFF; "
 
@@ -102,10 +102,10 @@
                 {{ base_dir }}/bin/mysql -uroot -f -S {{ data_dir }}/mysql.sock
                 -ANse " CREATE USER {{ mgr_user }} IDENTIFIED WITH mysql_native_password BY '{{ mgr_user_pwd }}';
                 GRANT REPLICATION SLAVE, BACKUP_ADMIN ON *.* TO {{ mgr_user }};
+                RESET MASTER;
                 CHANGE MASTER TO MASTER_USER='{{ mgr_user }}', MASTER_PASSWORD='{{ mgr_user_pwd }}' FOR CHANNEL 'group_replication_recovery';
                 SET GLOBAL group_replication_local_address = '{{ inventory_hostname }}:33061';
                 SET GLOBAL group_replication_group_seeds = '{{ mgr_seeds }}';
-                RESET MASTER;
                 START GROUP_REPLICATION; "
 
        when: check_mysql_port.stdout == "False" or check_mysql_ps.stdout == "False"
