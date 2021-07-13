@@ -73,7 +73,7 @@
         - name: mgr primary init
           shell: >
                 {{ base_dir }}/bin/mysql -uroot -f -S {{ data_dir }}/mysql.sock
-                -ANse " CREATE USER {{ mgr_user }} IDENTIFIED WITH mysql_native_password BY '{{ mgr_user_pwd }}';
+                -ANse " CREATE USER IF NOT EXISTS {{ mgr_user }} IDENTIFIED WITH mysql_native_password BY '{{ mgr_user_pwd }}';
                 GRANT REPLICATION SLAVE, BACKUP_ADMIN ON *.* TO {{ mgr_user }};
                 RESET MASTER;
                 CHANGE MASTER TO MASTER_USER='{{ mgr_user }}', MASTER_PASSWORD='{{ mgr_user_pwd }}' FOR CHANNEL 'group_replication_recovery';
@@ -100,7 +100,7 @@
         - name: mgr secondary init
           shell: >
                 {{ base_dir }}/bin/mysql -uroot -f -S {{ data_dir }}/mysql.sock
-                -ANse " CREATE USER {{ mgr_user }} IDENTIFIED WITH mysql_native_password BY '{{ mgr_user_pwd }}';
+                -ANse " CREATE USER IF NOT EXISTS {{ mgr_user }} IDENTIFIED WITH mysql_native_password BY '{{ mgr_user_pwd }}';
                 GRANT REPLICATION SLAVE, BACKUP_ADMIN ON *.* TO {{ mgr_user }};
                 RESET MASTER;
                 CHANGE MASTER TO MASTER_USER='{{ mgr_user }}', MASTER_PASSWORD='{{ mgr_user_pwd }}' FOR CHANNEL 'group_replication_recovery';
