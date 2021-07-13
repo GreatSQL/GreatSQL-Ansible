@@ -1,0 +1,7 @@
+- name: check mysql port
+  shell: if [ -z "`netstat -lntp|grep "{{mysql_port}}"`" ] ; then echo "True"; else echo "False"; fi;
+  register: check_mysql_port
+
+- name: check mysql processor
+  shell: if [ -z "`ps -ef|grep -v grep|grep "{{base_dir}}".*mysqld`" ] ; then echo "True"; else echo "False"; fi
+  register: check_mysql_ps
