@@ -8,5 +8,5 @@ mysql_user: mysql
 mysql_port: 3306
 mgr_user: repl
 mgr_user_pwd: repl4MGR
-mgr_seeds: '172.16.16.7:33061,172.16.16.10:33061,172.16.16.16:33061'
+mgr_seeds: '172.16.16.10:33061,172.16.16.11:33061,172.16.16.12:33061'
 wait_for_start: 60
