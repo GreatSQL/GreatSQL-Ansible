@@ -2,7 +2,8 @@
   hosts: greatsql_dbs
   remote_user: root
   ignore_errors: yes
-  vars_files: vars.yml
+  vars_files: 
+    - vars.yml
 
   tasks:
     - include: check_mysql.yml
@@ -33,7 +34,7 @@
          unarchive: src={{work_dir}}/{{file_name}} dest={{extract_dir}} mode=755
     
        - name: backup /etc/my.cnf
-         copy: src={{my_cnf}} dest={{my_cnf}}.orig
+         copy: src={{my_cnf}} dest={{my_cnf}}.orig ignore_errors=True
     
        - name: copy my.cnf
          copy: src={{base_dir}}/support-files/my.cnf dest={{my_cnf}} owner={{mysql_user}} group={{mysql_user}} mode=0644
@@ -73,7 +74,8 @@
 - name: mgr primary
   hosts: greatsql_mgr_primary
   ignore_errors: yes
-  vars_files: vars.yml
+  vars_files:
+    - vars.yml
   tasks:
      - include: check_mysql.yml
 
@@ -100,7 +102,8 @@
 - name: mgr secondary
   hosts: greatsql_mgr_secondary
   ignore_errors: yes
-  vars_files: vars.yml
+  vars_files:
+    - vars.yml
   tasks:
      - include: check_mysql.yml
 
