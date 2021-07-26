@@ -1,5 +1,5 @@
 - name: check mysql port
-  shell: if [ -z "`netstat -lntp|grep "{{mysql_port}}"`" ] ; then echo "True"; else echo "False"; fi;
+  shell: if [ -z "`/usr/sbin/ss -lntp|grep ":{{mysql_port}}"`" ] ; then echo "True"; else echo "False"; fi;
   register: check_mysql_port
 
 - name: check mysql processor
