@@ -1,0 +1,22 @@
+[Unit]
+Description=GreatSQL Server
+Documentation=man:mysqld(8)
+Documentation=http://dev.mysql.com/doc/refman/en/using-systemd.html
+After=network.target
+After=syslog.target
+[Install]
+WantedBy=multi-user.target
+[Service]
+User=mysql
+Group=mysql
+Type=notify
+TimeoutSec=0
+PermissionsStartOnly=true
+ExecStartPre=/usr/local/GreatSQL-8.0.25-15-Linux-glibc2.17-x86_64-minimal/bin/mysqld_pre_systemd
+ExecStart=/usr/local/GreatSQL-8.0.25-15-Linux-glibc2.17-x86_64-minimal/bin/mysqld $MYSQLD_OPTS
+EnvironmentFile=-/etc/sysconfig/mysql
+LimitNOFILE = 10000
+Restart=on-failure
+RestartPreventExitStatus=1
+Environment=MYSQLD_PARENT_PID=1
+PrivateTmp=false
