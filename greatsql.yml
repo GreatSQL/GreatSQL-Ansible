@@ -37,7 +37,7 @@
          copy: src={{my_cnf}} dest={{my_cnf}}.orig ignore_errors=True
     
        - name: copy my.cnf
-         copy: src=./mysql-support-files/support-files/my.cnf dest={{my_cnf}} owner={{mysql_user}} group={{mysql_user}} mode=0644
+         copy: src={{work_dir}}/mysql-support-files/my.cnf dest={{my_cnf}} owner={{mysql_user}} group={{mysql_user}} mode=0644
     
        - name: replace my.cnf group_replication_local_address settings
          replace:
@@ -52,16 +52,16 @@
            replace: '\1= {{ mgr_seeds }}'
 
        - name: copy sysconfig/mysql to /etc/sysconfig/mysql
-         copy: src=./mysql-support-files/support-files/sysconfig/mysql dest=/etc/sysconfig owner=root group=root mode=0644
+         copy: src={{work_dir}}/mysql-support-files/sysconfig/mysql dest=/etc/sysconfig owner=root group=root mode=0644
     
        - name: preload jemalloc
          command: /usr/sbin/ldconfig
     
        - name: copy mysql PATH
-         copy: src=./mysql-support-files/support-files/mysql.sh dest=/etc/profile.d/mysql.sh
+         copy: src={{work_dir}}/mysql-support-files/mysql.sh dest=/etc/profile.d/mysql.sh
     
        - name: copy greatsql.server
-         copy: src=./mysql-support-files/support-files/greatsql.service dest=/usr/lib/systemd/system/ owner=root group=root mode=0644
+         copy: src={{work_dir}}/mysql-support-files/greatsql.service dest=/usr/lib/systemd/system/ owner=root group=root mode=0644
     
        - name: reload GreatSQL service
          command: /usr/bin/systemctl daemon-reload
