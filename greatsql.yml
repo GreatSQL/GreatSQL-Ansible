@@ -39,6 +39,15 @@
        - name: copy my.cnf
          copy: src={{work_dir}}/mysql-support-files/my.cnf dest={{my_cnf}} owner={{mysql_user}} group={{mysql_user}} mode=0644
     
+       - name: copy mysqld_pre_systemd
+         copy: src={{work_dir}}/mysql-support-files/mysqld_pre_systemd dest={{base_dir}}/bin/ owner={{mysql_user}} group={{mysql_user}} mode=0755
+    
+       - name: replace mysqld_pre_systemd MYSQL_BASEDIR
+         replace:
+           path: "{{base_dir}}/bin/mysqld_pre_systemd"
+           regexp: '(MYSQL_BASEDIR)=.*'
+           replace: '\1={{base_dir}}'
+    
        - name: replace my.cnf group_replication_local_address settings
          replace:
            path: "{{ my_cnf }}"
