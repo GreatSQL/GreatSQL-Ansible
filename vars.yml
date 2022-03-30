@@ -1,8 +1,8 @@
 work_dir: /opt/greatsql
 extract_dir: /usr/local
 data_dir: /data/GreatSQL
-file_name: GreatSQL-8.0.25-15-Linux-glibc2.17-x86_64.tar.xz
-base_dir: /usr/local/GreatSQL-8.0.25-15-Linux-glibc2.17-x86_64
+file_name: GreatSQL-8.0.27-18-Linux-glibc2.17-x86_64.tar.xz
+base_dir: /usr/local/GreatSQL-8.0.27-18-Linux-glibc2.17-x86_64
 my_cnf: /etc/my.cnf
 mysql_user: mysql
 mysql_port: 3306

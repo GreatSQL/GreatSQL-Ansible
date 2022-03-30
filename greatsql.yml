@@ -30,8 +30,8 @@
        - name: create data_dir
          file: path={{data_dir}} state=directory owner={{mysql_user}} group={{mysql_user}} mode=0700
     
-       - name: extract GreatSQL tarball
-         unarchive: src={{work_dir}}/{{file_name}} dest={{extract_dir}} mode=755
+#       - name: extract GreatSQL tarball
+#         unarchive: src={{work_dir}}/{{file_name}} dest={{extract_dir}} mode=755
     
        - name: backup /etc/my.cnf
          copy: src={{my_cnf}} dest={{my_cnf}}.orig ignore_errors=True
@@ -86,9 +86,6 @@
     
        - name: reload GreatSQL service
          command: /usr/bin/systemctl daemon-reload
-    
-       - name: start the GreatSQL service
-         command: /usr/bin/systemctl start greatsql
 
       when: check_mysql_port.stdout == "True" and check_mysql_ps.stdout == "True"
 
@@ -101,6 +98,9 @@
      - include: check_mysql.yml
 
      - block:
+        - name: start the GreatSQL service on PRIMARY NODE
+          command: /usr/bin/systemctl start greatsql
+
         - name: wait for mysqld start
           shell: sleep {{ wait_for_start }}
           delay: 1
@@ -108,9 +108,9 @@
         - name: mgr primary init
           shell: >
                 {{ base_dir }}/bin/mysql -uroot -f -S {{ data_dir }}/mysql.sock
-                -ANse " CREATE USER IF NOT EXISTS {{ mgr_user }} IDENTIFIED WITH mysql_native_password BY '{{ mgr_user_pwd }}';
+                -ANse "SET @@SESSION.SQL_LOG_BIN=0;
+                CREATE USER IF NOT EXISTS {{ mgr_user }} IDENTIFIED WITH mysql_native_password BY '{{ mgr_user_pwd }}';
                 GRANT REPLICATION SLAVE, BACKUP_ADMIN ON *.* TO {{ mgr_user }};
-                RESET MASTER;
                 CHANGE MASTER TO MASTER_USER='{{ mgr_user }}', MASTER_PASSWORD='{{ mgr_user_pwd }}' FOR CHANNEL 'group_replication_recovery';
                 SET GLOBAL group_replication_local_address = '{{ inventory_hostname }}:33061';
                 SET GLOBAL group_replication_group_seeds = '{{ mgr_seeds }}';
@@ -118,7 +118,7 @@
                 START GROUP_REPLICATION;
                 SET GLOBAL group_replication_bootstrap_group=OFF; "
 
-       when: check_mysql_port.stdout == "False" or check_mysql_ps.stdout == "False"
+       when: check_mysql_port.stdout == "True" and check_mysql_ps.stdout == "True"
 
 - name: mgr secondary
   hosts: greatsql_mgr_secondary
@@ -129,6 +129,9 @@
      - include: check_mysql.yml
 
      - block:
+        - name: start the GreatSQL service on SECONDARY NODE
+          command: /usr/bin/systemctl start greatsql
+
         - name: wait for mysqld start
           shell: sleep {{ wait_for_start }}
           delay: 1
@@ -136,12 +139,47 @@
         - name: mgr secondary init
           shell: >
                 {{ base_dir }}/bin/mysql -uroot -f -S {{ data_dir }}/mysql.sock
-                -ANse " CREATE USER IF NOT EXISTS {{ mgr_user }} IDENTIFIED WITH mysql_native_password BY '{{ mgr_user_pwd }}';
+                -ANse "SET @@SESSION.SQL_LOG_BIN=0;
+                CREATE USER IF NOT EXISTS {{ mgr_user }} IDENTIFIED WITH mysql_native_password BY '{{ mgr_user_pwd }}';
                 GRANT REPLICATION SLAVE, BACKUP_ADMIN ON *.* TO {{ mgr_user }};
-                RESET MASTER;
                 CHANGE MASTER TO MASTER_USER='{{ mgr_user }}', MASTER_PASSWORD='{{ mgr_user_pwd }}' FOR CHANNEL 'group_replication_recovery';
                 SET GLOBAL group_replication_local_address = '{{ inventory_hostname }}:33061';
                 SET GLOBAL group_replication_group_seeds = '{{ mgr_seeds }}';
                 START GROUP_REPLICATION; "
 
-       when: check_mysql_port.stdout == "False" or check_mysql_ps.stdout == "False"
+       when: check_mysql_port.stdout == "True" and check_mysql_ps.stdout == "True"
+
+- name: mgr arbitrator
+  hosts: greatsql_mgr_arbitrator
+  ignore_errors: yes
+  vars_files:
+    - vars.yml
+  tasks:
+     - include: check_mysql.yml
+
+     - block:
+        - name: replace my.cnf arbitrator settings
+          replace:
+            path: "{{ my_cnf }}"
+            regexp: '(.*_arbitrator.*)=.*'
+            replace: '\1= 1'
+
+        - name: start the GreatSQL service on ARBITRATOR NODE
+          command: /usr/bin/systemctl start greatsql
+
+        - name: wait for mysqld start
+          shell: sleep {{ wait_for_start }}
+          delay: 1
+
+        - name: mgr arbitrator init
+          shell: >
+                {{ base_dir }}/bin/mysql -uroot -f -S {{ data_dir }}/mysql.sock
+                -ANse "SET @@SESSION.SQL_LOG_BIN=0;
+                CREATE USER IF NOT EXISTS {{ mgr_user }} IDENTIFIED WITH mysql_native_password BY '{{ mgr_user_pwd }}';
+                GRANT REPLICATION SLAVE, BACKUP_ADMIN ON *.* TO {{ mgr_user }};
+                CHANGE MASTER TO MASTER_USER='{{ mgr_user }}', MASTER_PASSWORD='{{ mgr_user_pwd }}' FOR CHANNEL 'group_replication_recovery';
+                SET GLOBAL group_replication_local_address = '{{ inventory_hostname }}:33061';
+                SET GLOBAL group_replication_group_seeds = '{{ mgr_seeds }}';
+                START GROUP_REPLICATION; "
+
+       when: check_mysql_port.stdout == "True" and check_mysql_ps.stdout == "True"
