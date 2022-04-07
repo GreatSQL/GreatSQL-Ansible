@@ -47,6 +47,12 @@
            path: "{{base_dir}}/bin/mysqld_pre_systemd"
            regexp: '(MYSQL_BASEDIR)=.*'
            replace: '\1={{base_dir}}'
+
+       - name: replace my.cnf server_id settings
+         replace:
+           path: "{{ my_cnf }}"
+           regexp: '(.*server_id.*)=.*'
+           replace: '\1= 3306{{ 1024 | random}}'
     
        - name: replace my.cnf group_replication_local_address settings
          replace:
@@ -59,6 +65,12 @@
            path: "{{ my_cnf }}"
            regexp: '(.*group_replication_group_seeds.*)=.*'
            replace: '\1= {{ mgr_seeds }}'
+
+       - name: replace my.cnf report_host settings
+         replace:
+           path: "{{ my_cnf }}"
+           regexp: '(.*report_host.*)=.*'
+           replace: '\1= {{ inventory_hostname }}'
 
        - name: copy sysconfig/mysql to /etc/sysconfig/mysql
          copy: src={{work_dir}}/mysql-support-files/sysconfig/mysql dest=/etc/sysconfig owner=root group=root mode=0644
