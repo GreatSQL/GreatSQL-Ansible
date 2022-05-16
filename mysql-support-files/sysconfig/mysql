@@ -1,2 +1,2 @@
-LD_PRELOAD=/usr/lib64/libjemalloc.so.1
+LD_PRELOAD=/usr/lib64/libjemalloc.so
 THP_SETTING=never
