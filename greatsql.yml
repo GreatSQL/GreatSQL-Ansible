@@ -30,8 +30,8 @@
        - name: create data_dir
          file: path={{data_dir}} state=directory owner={{mysql_user}} group={{mysql_user}} mode=0700
     
-#       - name: extract GreatSQL tarball
-#         unarchive: src={{work_dir}}/{{file_name}} dest={{extract_dir}} mode=755
+       - name: extract GreatSQL tarball
+         unarchive: src={{work_dir}}/{{file_name}} dest={{extract_dir}} mode=755
     
        - name: backup /etc/my.cnf
          copy: src={{my_cnf}} dest={{my_cnf}}.orig ignore_errors=True
