@@ -72,17 +72,59 @@
            regexp: '(.*report_host.*)=.*'
            replace: '\1= {{ inventory_hostname }}'
 
+       - name: replace my.cnf basedir
+         replace:
+           path: "{{ my_cnf }}"
+           regexp: 'basedir.*'
+           replace: 'basedir = {{ base_dir }}'
+
+       - name: replace my.cnf datadir
+         replace:
+           path: "{{ my_cnf }}"
+           regexp: 'datadir.*'
+           replace: 'datadir = {{ data_dir }}'
+
+       - name: replace my.cnf user
+         replace:
+           path: "{{ my_cnf }}"
+           regexp: '^user.*'
+           replace: 'user = {{ mysql_user }}'
+
+       - name: replace my.cnf port
+         replace:
+           path: "{{ my_cnf }}"
+           regexp: '^port.*'
+           replace: 'port = {{ mysql_port }}'
+
        - name: copy sysconfig/mysql to /etc/sysconfig/mysql
          copy: src={{work_dir}}/mysql-support-files/sysconfig/mysql dest=/etc/sysconfig owner=root group=root mode=0644
     
        - name: preload jemalloc
          command: /usr/sbin/ldconfig
-    
+
        - name: copy mysql PATH
          copy: src={{work_dir}}/mysql-support-files/mysql.sh dest=/etc/profile.d/mysql.sh
     
+       - name: replace mysql.sh PATH
+         replace:
+           path: /etc/profile.d/mysql.sh
+           regexp: '(.*PATH.*)=.*'
+           replace: 'export PATH=$PATH:{{base_dir}}/bin'
+
        - name: copy greatsql.server
          copy: src={{work_dir}}/mysql-support-files/greatsql.service dest=/usr/lib/systemd/system/ owner=root group=root mode=0644
+    
+       - name: replace greatsql.service
+         replace:
+           path: /usr/lib/systemd/system/greatsql.service
+           regexp: '(ExecStartPre=)(.*)(/bin/mysqld.*)'
+           replace: '\1{{base_dir}}\3'
+    
+       - name: replace greatsql.service
+         replace:
+           path: /usr/lib/systemd/system/greatsql.service
+           regexp: '(ExecStart=)(.*)(/bin/mysqld.*)'
+           replace: '\1{{base_dir}}\3'
     
        - name: reload GreatSQL service
          command: /usr/bin/systemctl daemon-reload
