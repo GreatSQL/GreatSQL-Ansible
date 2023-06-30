@@ -126,6 +126,9 @@
            regexp: '(ExecStart=)(.*)(/bin/mysqld.*)'
            replace: '\1{{base_dir}}\3'
     
+       - name: premkdir /var/lib/mysql-files
+         command: mkdir -p /var/lib/mysql-files
+    
        - name: reload GreatSQL service
          command: /usr/bin/systemctl daemon-reload
 
