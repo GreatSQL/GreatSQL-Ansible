@@ -1,12 +1,13 @@
 work_dir: /opt/greatsql
 extract_dir: /usr/local
 data_dir: /data/GreatSQL
-file_name: GreatSQL-8.0.32-24-Linux-glibc2.28-x86_64-minimal.tar.xz
-base_dir: /usr/local/GreatSQL-8.0.32-24-Linux-glibc2.28-x86_64-minimal
+file_name: GreatSQL-8.0.32-24-Linux-glibc2.17-x86_64-minimal.tar.xz
+base_dir: /usr/local/GreatSQL-8.0.32-24-Linux-glibc2.17-x86_64-minimal
 my_cnf: /etc/my.cnf
 mysql_user: mysql
 mysql_port: 3306
 mgr_user: repl
 mgr_user_pwd: repl4MGR
 mgr_seeds: '172.16.16.10:33061,172.16.16.11:33061,172.16.16.12:33061'
+mgr_single_mode: 1
 wait_for_start: 60

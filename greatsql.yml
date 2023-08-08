@@ -32,17 +32,17 @@
     
        - name: extract GreatSQL tarball
          unarchive: src={{work_dir}}/{{file_name}} dest={{extract_dir}} mode=755
-    
+
        - name: backup /etc/my.cnf
          copy: src={{my_cnf}} dest={{my_cnf}}.orig ignore_errors=True
-    
+
        - name: copy my.cnf
          copy: src={{work_dir}}/mysql-support-files/my.cnf dest={{my_cnf}} owner={{mysql_user}} group={{mysql_user}} mode=0644
-    
+
        - name: copy mysqld_pre_systemd
          copy: src={{work_dir}}/mysql-support-files/mysqld_pre_systemd dest={{base_dir}}/bin/ owner={{mysql_user}} group={{mysql_user}} mode=0755
-    
-       - name: replace mysqld_pre_systemd MYSQL_BASEDIR
+
+       - name: replace mysqld_pre_systemd MYSQL_BASEDIR to({{ base_dir }})
          replace:
            path: "{{base_dir}}/bin/mysqld_pre_systemd"
            regexp: '(MYSQL_BASEDIR)=.*'
@@ -54,47 +54,53 @@
            regexp: '(.*server_id.*)=.*'
            replace: '\1= 3306{{ 1024 | random}}'
     
-       - name: replace my.cnf group_replication_local_address settings
+       - name: replace my.cnf group_replication_local_address settings to('{{ inventory_hostname }}:33061')
          replace:
            path: "{{ my_cnf }}"
            regexp: '(.*group_replication_local_address.*)=.*'
            replace: '\1= {{ inventory_hostname }}:33061'
 
-       - name: replace my.cnf group_replication_group_seeds settings
+       - name: replace my.cnf group_replication_group_seeds settings to('{{ mgr_seeds }}')
          replace:
            path: "{{ my_cnf }}"
            regexp: '(.*group_replication_group_seeds.*)=.*'
            replace: '\1= {{ mgr_seeds }}'
 
-       - name: replace my.cnf report_host settings
+       - name: replace my.cnf report_host settings to('{{ inventory_hostname }}')
          replace:
            path: "{{ my_cnf }}"
            regexp: '(.*report_host.*)=.*'
            replace: '\1= {{ inventory_hostname }}'
 
-       - name: replace my.cnf basedir
+       - name: replace my.cnf basedir to({{ base_dir }})
          replace:
            path: "{{ my_cnf }}"
            regexp: 'basedir.*'
            replace: 'basedir = {{ base_dir }}'
 
-       - name: replace my.cnf datadir
+       - name: replace my.cnf datadir to({{ data_dir }})
          replace:
            path: "{{ my_cnf }}"
            regexp: 'datadir.*'
            replace: 'datadir = {{ data_dir }}'
 
-       - name: replace my.cnf user
+       - name: replace my.cnf user to({{ mysql_user }})
          replace:
            path: "{{ my_cnf }}"
            regexp: '^user.*'
            replace: 'user = {{ mysql_user }}'
 
-       - name: replace my.cnf port
+       - name: replace my.cnf port to({{ mysql_port }})
          replace:
            path: "{{ my_cnf }}"
            regexp: '^port.*'
            replace: 'port = {{ mysql_port }}'
+
+       - name: replace single_mode to({{ mgr_single_mode }})
+         replace:
+           path: "{{ my_cnf }}"
+           regexp: '(.*single.*mode.*)=(.*)'
+           replace: '\1 = {{mgr_single_mode}}'
 
        - name: copy sysconfig/mysql to /etc/sysconfig/mysql
          copy: src={{work_dir}}/mysql-support-files/sysconfig/mysql dest=/etc/sysconfig owner=root group=root mode=0644
@@ -125,9 +131,6 @@
            path: /usr/lib/systemd/system/greatsql.service
            regexp: '(ExecStart=)(.*)(/bin/mysqld.*)'
            replace: '\1{{base_dir}}\3'
-    
-       - name: premkdir /var/lib/mysql-files
-         command: mkdir -p /var/lib/mysql-files
     
        - name: reload GreatSQL service
          command: /usr/bin/systemctl daemon-reload
