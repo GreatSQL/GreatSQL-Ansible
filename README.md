@@ -3,6 +3,15 @@
 ## 介绍
 利用ansible一键安装GreatSQL并完成MGR部署。
 
+适配版本及环境：
+
+- GreatSQL版本：8.0.32-24
+
+- 操作系统环境：CentOS Linux 8
+
+- Ansible版本：2.9.25
+
+
 ## 使用文档
 [利用Ansible安装GreatSQL并构建MGR集群](https://gitee.com/GreatSQL/GreatSQL-Doc/blob/master/docs/install-greatsql-with-ansible.md)。
 
